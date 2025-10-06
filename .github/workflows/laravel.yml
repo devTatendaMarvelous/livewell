@@ -1,0 +1,50 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Connect and Deploy
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p 1985 "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}" << 'EOF'
+            # Step 1: Navigate to the /opt directory
+            cd /opt
+
+            # Step 2: Clone the latest repository
+            if [ -d "client-portal" ]; then
+              echo "Directory already exists. Removing..."
+              rm -rf client-portal
+            fi
+            git clone https://marveLogatech:${{ secrets.TOKEN }}@github.com/CoverLink-Zimbabwe/client-portal
+
+            # Step 3: Navigate to the project directory
+            cd client-portal
+
+            git checkout main
+            git pull origin main
+
+            # Step 4: Stop, remove, and clean Docker resources
+            docker stop client-portal || true
+            docker rm client-portal || true
+            docker rmi client-portal || true
+
+            # Step 5: Build and run the Docker container
+            docker build -t client-portal .
+            docker run -d -p 9001:8080 --name=client-portal --restart=always client-portal
+
+            # Step 6: Clean up cloned repository
+            cd /opt
+            rm -rf client-portal
+
+            echo "Deployment completed successfully."
+          EOF

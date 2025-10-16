@@ -36,6 +36,9 @@
         @enderror
     </div>
     <div class="mb-3">
+        <input type="password" class="form-control" name="password_confirmation" placeholder="Confirm Password">
+    </div>
+    <div class="mb-3">
         <input class="form-control @error('address') is-invalid @enderror" name="address" placeholder="Address">
         @error('address')
         <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>

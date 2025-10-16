@@ -34,7 +34,9 @@
                                             <td>{{ $record->status ?? 'N/A' }}</td>
                                             <td>{{ $record->recorded_at ?? '-' }}</td>
                                             <td>
+                                                @if($record->status === 'PENDING')
                                                 <a class="btn btn-primary" href="{{route('health-records.diagnose',[$record->id])}}">Diagonise</a>
+                                                @endif
                                                 <a href="{{ route('health-records.show', $record->id) }}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-eye f-20"></i></a>
                                               @if($record->status === 'PENDING')
                                                 <a href="{{ route('health-records.edit', $record->id) }}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>

@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('disease-risks', DiseaseRiskController::class);
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('/health-records/{id}/diagnose', [HealthRecordController::class, 'diagonise'])->name('health-records.diagnose');
+    Route::get('quick-chat', [\App\Http\Controllers\HomeController::class, 'chat'])->name('chat');
 });
 
 

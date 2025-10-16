@@ -68,3 +68,10 @@ function  formatMobileNumber($mobile)
     }
     return $mobile;
 }
+
+
+function isVet()
+{
+    return strtolower(auth()->user()->role)==='vet';
+
+}

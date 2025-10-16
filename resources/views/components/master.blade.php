@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="Coverlink"><!-- [Favicon] icon -->
-    <link rel="icon" href="{{asset('logo.svg')}}" type="image/x-icon"><!-- [Font] Family -->
+    <link rel="icon" href="{{asset('logo.png')}}" type="image/x-icon"><!-- [Font] Family -->
     <link rel="stylesheet" href="{{asset('assets/fonts/inter/inter.css')}}" id="main-font-link">
     <!-- [phosphor Icons] https://phosphoricons.com/ -->
     <link rel="stylesheet" href="{{asset('assets/fonts/phosphor/duotone/style.css')}}">

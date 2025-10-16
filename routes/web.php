@@ -33,6 +33,8 @@ if (FacadesApp::environment('production')) {
 Route::get('/', [\App\Http\Controllers\HomeController::class, 'welcome'])->name('welcome');
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('/disease-risks/{diseaseRisk}/publish', [DiseaseRiskController::class, 'publish'])
+        ->name('disease-risks.publish');
     Route::resource('livestock', LivestockController::class);
     Route::resource('health-records', HealthRecordController::class);
     Route::resource('vaccinations', VaccinationController::class);

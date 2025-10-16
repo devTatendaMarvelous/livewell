@@ -15,5 +15,6 @@ class DiseaseRisk extends Model
         'risk_level',     // low, medium, high
         'forecast_date',  // Date of forecast
         'source',         // Data source (e.g., API or vet report)
+        'published'
     ];
 }

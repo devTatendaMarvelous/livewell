@@ -67,7 +67,7 @@ class HomeController extends Controller
 
         // Other counts used by the main cards (if not already computed)
         $totalLivestock =Livestock::count();
-        $totalVets = \DB::table('users')->where('role', 'veterinary')->count();
+        $totalVets = \DB::table('users')->where('role', 'vet')->count();
         $totalFarmers = \DB::table('users')->where('role', 'farmer')->count();
 
         return view('home', compact(

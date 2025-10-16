@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DiseaseRisk;
 use Illuminate\Http\Request;
-
+use App\Jobs\SendDiseaseRiskEmailJob;
 class DiseaseRiskController extends Controller
 {
     public function index()
@@ -29,10 +29,22 @@ class DiseaseRiskController extends Controller
         ]);
 
         DiseaseRisk::create($validated);
+
         toast('Risk created successfully.','success');
         return redirect()->route('disease-risks.index')->with('success', 'Disease risk added.');
     }
 
+public function publish(DiseaseRisk $diseaseRisk)
+{
+    // Mark as published (you may want to add a 'published' column to the table)
+    $diseaseRisk->update(['published' => true]);
+
+    // Dispatch the job to send emails
+    SendDiseaseRiskEmailJob::dispatch($diseaseRisk);
+
+    toast('Disease risk published and email notifications are being sent to all farmers.', 'success');
+    return redirect()->route('disease-risks.index');
+}
     public function edit(DiseaseRisk $diseaseRisk)
     {
         return view('disease_risks.edit', compact('diseaseRisk'));

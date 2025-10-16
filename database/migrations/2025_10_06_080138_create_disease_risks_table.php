@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('risk_level', ['low', 'medium', 'high']);
             $table->string('source')->nullable();
             $table->date('forecast_date')->nullable();
+            $table->boolean('published')->default(false)->after('forecast_date');
             $table->timestamps();
         });
     }

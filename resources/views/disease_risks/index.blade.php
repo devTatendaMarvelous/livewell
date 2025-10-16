@@ -18,6 +18,7 @@
                                         <th>Risk Level</th>
                                         <th>Source</th>
                                         <th>Forecast Date</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                     </thead>
@@ -38,6 +39,19 @@
                                             <td>{{ $risk->source ?? '-' }}</td>
                                             <td>{{ $risk->forecast_date ?? '-' }}</td>
                                             <td>
+                                                @if($risk->published)
+                                                    <span class="badge bg-success">Published</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Draft</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <form action="{{ route('disease-risks.publish', $risk) }}" method="POST" style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success btn-sm" {{ $risk->published ? 'disabled' : '' }}>
+                                                        {{ $risk->published ? 'Published' : 'Publish & Notify' }}
+                                                    </button>
+                                                </form>
                                                 <a href="{{ route('disease-risks.edit', $risk->id) }}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>
                                                 <form action="{{ route('disease-risks.destroy', $risk->id) }}" method="POST" class="d-inline">
                                                     @csrf @method('DELETE')

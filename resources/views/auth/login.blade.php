@@ -1,4 +1,4 @@
-<x-auth :headerText=" __(' Login with your email number')" >
+<x-auth :headerText=" __(' Login with your email ')" >
 
                     <form method="POST" action="{{ route('login') }}">
                         @csrf

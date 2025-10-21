@@ -25,39 +25,9 @@
 
     body {
         font-family: 'Figtree', sans-serif;
-        background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+        /*background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);*/
         color: var(--text-light);
         overflow-x: hidden;
-    }
-
-    /* Navigation */
-    .navbar {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        /*padding: 1.5rem 2rem;*/
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px);
-        z-index: 1000;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .logo {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-green);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .nav-links {
-        display: flex;
-        gap: 2rem;
-        align-items: center;
     }
 
     .nav-links a {
@@ -71,33 +41,6 @@
         color: var(--primary-green);
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(72, 199, 116, 0.3);
-    }
-
-    /* Hero Section */
-    .hero {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8rem 2rem 4rem;
-        text-align: center;
-    }
 
     .hero-content h1 {
         font-size: 3.5rem;
@@ -116,50 +59,12 @@
         margin: 0 auto 2rem;
     }
 
-    .hero-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    /* Features Section */
-    .features {
-        padding: 4rem 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
 
     .features h2 {
         text-align: center;
         font-size: 2.5rem;
         margin-bottom: 3rem;
         color: var(--primary-green);
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-    }
-
-    .feature-card {
-        background: rgba(30, 41, 59, 0.6);
-        padding: 2rem;
-        border-radius: 12px;
-        border: 1px solid rgba(72, 199, 116, 0.2);
-        transition: transform 0.3s, border-color 0.3s;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-8px);
-        border-color: var(--primary-green);
-    }
-
-    .feature-icon {
-        font-size: 2.5rem;
-        color: var(--primary-green);
-        margin-bottom: 1rem;
     }
 
     .feature-card h3 {
@@ -186,7 +91,7 @@
     }
 
     .chat-container {
-        max-width: 900px;
+        max-width: auto;
         margin: 0 auto;
         background: rgba(30, 41, 59, 0.8);
         border-radius: 16px;
@@ -669,11 +574,8 @@
 
                     <div class="form-group">
                         <label for="breed"><i class="fas fa-dna"></i> Breed</label>
-                        <select name="breed" id="breed" class="form-control select2">
-                            @foreach($breeds as $breed)
-                                <option value="{{ $breed }}">{{ $breed }}</option>
-                            @endforeach
-                        </select>
+                        <!-- empty; options populated by JS per selected species -->
+                        <select name="breed" id="breed" class="form-control select2"  required></select>
                     </div>
 
                     <div class="form-group">
@@ -686,22 +588,16 @@
                     </div>
                 </div>
 
+                <!-- Replace the symptoms select block with an empty select -->
                 <div class="form-group">
                     <label for="symptoms"><i class="fas fa-heartbeat"></i> Symptoms (Select Multiple)</label>
-                    <select id="symptoms" multiple required>
-                        @foreach($symptoms as $symptom)
-                            <option value="{{ $symptom }}">{{str_replace('_', ' ', $symptom)  }}</option>
-                        @endforeach
-                    </select>
+                    <select id="symptoms" multiple required></select>
                 </div>
 
+                <!-- Replace the key_signs select block with an empty select -->
                 <div class="form-group">
                     <label for="key_signs"><i class="fas fa-stethoscope"></i> Key Signs (Select Multiple)</label>
-                    <select id="key_signs" multiple required>
-                        @foreach($signs as $sign)
-                            <option value="{{ $sign }}">{{ str_replace('_', ' ', $sign)   }}</option>
-                        @endforeach
-                    </select>
+                    <select id="key_signs" multiple required></select>
                 </div>
 
                 <button type="submit" class="send-button" id="sendButton">
@@ -715,21 +611,83 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Initialize Select2
-        $('#symptoms').select2({
-            placeholder: 'Select symptoms',
-            allowClear: true,
-            width: '100%'
-        });
 
-        $('#key_signs').select2({
-            placeholder: 'Select key signs',
-            allowClear: true,
-            width: '100%'
+    <script>
+        // expose PHP species-keyed arrays to JS
+        const SIGNS_BY_SPECIES = @json($signs);
+        const SYMPTOMS_BY_SPECIES = @json($symptoms);
+        const BREEDS_BY_SPECIES = @json($breeds); // pass species => [breeds] from controller
+
+        // helper to clear and populate a select element (value = raw item, text = pretty)
+        function populateSelect(selector, items, single = false) {
+            const $sel = $(selector);
+            $sel.empty();
+            if (!Array.isArray(items) || items.length === 0) {
+                $sel.prop('disabled', true);
+                $sel.trigger('change');
+                return;
+            }
+            $sel.prop('disabled', false);
+            items.forEach(item => {
+                const text = String(item).replace(/_/g, ' ');
+                const option = new Option(text, item, false, false);
+                $sel.append(option);
+            });
+            if (single) {
+                // optionally select first item (comment out if you don't want auto-select)
+                // $sel.val(items[0]).trigger('change');
+            }
+            $sel.trigger('change');
+        }
+
+        $(document).ready(function() {
+            // initialize Select2 for selects
+            $('#symptoms').select2({ placeholder: 'Select symptoms', allowClear: true, width: '100%' });
+            $('#key_signs').select2({ placeholder: 'Select key signs', allowClear: true, width: '100%' });
+            $('#breed').select2({ placeholder: 'Select breed', allowClear: true, width: '100%' });
+
+            // update selects for chosen species
+            function updateForSpecies(species) {
+                const s = String(species);
+                populateSelect('#symptoms', SYMPTOMS_BY_SPECIES[s] ?? []);
+                populateSelect('#key_signs', SIGNS_BY_SPECIES[s] ?? []);
+                populateSelect('#breed', BREEDS_BY_SPECIES[s] ?? [], true);
+            }
+
+            $('#species').on('change', function() {
+                updateForSpecies(this.value);
+            });
+
+            // initial populate on load
+            const initialSpecies = $('#species').val();
+            if (initialSpecies) {
+                updateForSpecies(initialSpecies);
+            } else {
+                populateSelect('#symptoms', []);
+                populateSelect('#key_signs', []);
+                populateSelect('#breed', []);
+            }
+
+            // ensure breed is cleared when form resets after submission
+            // (this mirrors clearing for symptoms/key_signs in your submit handler)
         });
-    });
+    </script>
+    <script>
+        // $(document).ready(function() {
+        //     // Initialize Select2
+        //     $('#symptoms').select2({
+        //         placeholder: 'Select symptoms',
+        //         allowClear: true,
+        //         width: '100%'
+        //     });
+        //
+        //     $('#key_signs').select2({
+        //         placeholder: 'Select key signs',
+        //         allowClear: true,
+        //         width: '100%'
+        //     });
+        // });
+
 
     const chatMessages = document.getElementById('chatMessages');
     const diagnosticForm = document.getElementById('diagnosticForm');
@@ -820,6 +778,7 @@
             diagnosticForm.reset();
             $('#symptoms').val(null).trigger('change');
             $('#key_signs').val(null).trigger('change');
+            $('#breed').val(null).trigger('change');
 
         } catch (error) {
             typingIndicator.remove();

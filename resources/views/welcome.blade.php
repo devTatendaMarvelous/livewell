@@ -730,13 +730,8 @@
                         </section>
 
                         <!-- Chat Diagnostics Section -->
-                        <section id="diagnostics" class="chat-section">
-                            <div class="chat-header">
-                                <h2>AI Livestock Diagnostics</h2>
-                                <p style="color: var(--text-muted); font-size: 1.1rem;">Get instant preliminary health assessments for your livestock</p>
-                            </div>
-
-                            <div class="chat-container">
+                        <section id="diagnostics" class="chat-section pc-container">
+                            <div class="chat-container pc-content">
                                 <div class="chat-messages" id="chatMessages">
                                     <div class="message ai">
                                         <div class="message-avatar"><i class="fas fa-robot"></i></div>
@@ -752,19 +747,16 @@
                                             <div class="form-group">
                                                 <label for="species"><i class="fas fa-paw"></i> Species</label>
                                                 <select id="species" required>
-                                                   @foreach($species as $specie)
+                                                    @foreach($species as $specie)
                                                         <option value="{{ $specie }}">{{ $specie }}</option>
-                                                   @endforeach
+                                                    @endforeach
                                                 </select>
                                             </div>
 
                                             <div class="form-group">
                                                 <label for="breed"><i class="fas fa-dna"></i> Breed</label>
-                                                <select name="breed" id="breed" class="form-control select2">
-                                                    @foreach($breeds as $breed)
-                                                        <option value="{{ $breed }}">{{ $breed }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <!-- empty; options populated by JS per selected species -->
+                                                <select name="breed" id="breed" class="form-control select2"  required></select>
                                             </div>
 
                                             <div class="form-group">
@@ -777,22 +769,16 @@
                                             </div>
                                         </div>
 
+                                        <!-- Replace the symptoms select block with an empty select -->
                                         <div class="form-group">
                                             <label for="symptoms"><i class="fas fa-heartbeat"></i> Symptoms (Select Multiple)</label>
-                                            <select id="symptoms" multiple required>
-                                                @foreach($symptoms as $symptom)
-                                                    <option value="{{ $symptom }}">{{str_replace('_', ' ', $symptom)  }}</option>
-                                                @endforeach
-                                            </select>
+                                            <select id="symptoms" multiple required></select>
                                         </div>
 
+                                        <!-- Replace the key_signs select block with an empty select -->
                                         <div class="form-group">
                                             <label for="key_signs"><i class="fas fa-stethoscope"></i> Key Signs (Select Multiple)</label>
-                                            <select id="key_signs" multiple required>
-                                                @foreach($signs as $sign)
-                                                    <option value="{{ $sign }}">{{ str_replace('_', ' ', $sign)   }}</option>
-                                                @endforeach
-                                            </select>
+                                            <select id="key_signs" multiple required></select>
                                         </div>
 
                                         <button type="submit" class="send-button" id="sendButton">
@@ -806,21 +792,83 @@
 
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
                         <script>
+                            // expose PHP species-keyed arrays to JS
+                            const SIGNS_BY_SPECIES = @json($signs);
+                            const SYMPTOMS_BY_SPECIES = @json($symptoms);
+                            const BREEDS_BY_SPECIES = @json($breeds); // pass species => [breeds] from controller
+
+                            // helper to clear and populate a select element (value = raw item, text = pretty)
+                            function populateSelect(selector, items, single = false) {
+                                const $sel = $(selector);
+                                $sel.empty();
+                                if (!Array.isArray(items) || items.length === 0) {
+                                    $sel.prop('disabled', true);
+                                    $sel.trigger('change');
+                                    return;
+                                }
+                                $sel.prop('disabled', false);
+                                items.forEach(item => {
+                                    const text = String(item).replace(/_/g, ' ');
+                                    const option = new Option(text, item, false, false);
+                                    $sel.append(option);
+                                });
+                                if (single) {
+                                    // optionally select first item (comment out if you don't want auto-select)
+                                    // $sel.val(items[0]).trigger('change');
+                                }
+                                $sel.trigger('change');
+                            }
+
                             $(document).ready(function() {
-                                // Initialize Select2
-                                $('#symptoms').select2({
-                                    placeholder: 'Select symptoms',
-                                    allowClear: true,
-                                    width: '100%'
+                                // initialize Select2 for selects
+                                $('#symptoms').select2({ placeholder: 'Select symptoms', allowClear: true, width: '100%' });
+                                $('#key_signs').select2({ placeholder: 'Select key signs', allowClear: true, width: '100%' });
+                                $('#breed').select2({ placeholder: 'Select breed', allowClear: true, width: '100%' });
+
+                                // update selects for chosen species
+                                function updateForSpecies(species) {
+                                    const s = String(species);
+                                    populateSelect('#symptoms', SYMPTOMS_BY_SPECIES[s] ?? []);
+                                    populateSelect('#key_signs', SIGNS_BY_SPECIES[s] ?? []);
+                                    populateSelect('#breed', BREEDS_BY_SPECIES[s] ?? [], true);
+                                }
+
+                                $('#species').on('change', function() {
+                                    updateForSpecies(this.value);
                                 });
 
-                                $('#key_signs').select2({
-                                    placeholder: 'Select key signs',
-                                    allowClear: true,
-                                    width: '100%'
-                                });
+                                // initial populate on load
+                                const initialSpecies = $('#species').val();
+                                if (initialSpecies) {
+                                    updateForSpecies(initialSpecies);
+                                } else {
+                                    populateSelect('#symptoms', []);
+                                    populateSelect('#key_signs', []);
+                                    populateSelect('#breed', []);
+                                }
+
+                                // ensure breed is cleared when form resets after submission
+                                // (this mirrors clearing for symptoms/key_signs in your submit handler)
                             });
+                        </script>
+                        <script>
+                            // $(document).ready(function() {
+                            //     // Initialize Select2
+                            //     $('#symptoms').select2({
+                            //         placeholder: 'Select symptoms',
+                            //         allowClear: true,
+                            //         width: '100%'
+                            //     });
+                            //
+                            //     $('#key_signs').select2({
+                            //         placeholder: 'Select key signs',
+                            //         allowClear: true,
+                            //         width: '100%'
+                            //     });
+                            // });
+
 
                             const chatMessages = document.getElementById('chatMessages');
                             const diagnosticForm = document.getElementById('diagnosticForm');
@@ -911,6 +959,7 @@
                                     diagnosticForm.reset();
                                     $('#symptoms').val(null).trigger('change');
                                     $('#key_signs').val(null).trigger('change');
+                                    $('#breed').val(null).trigger('change');
 
                                 } catch (error) {
                                     typingIndicator.remove();

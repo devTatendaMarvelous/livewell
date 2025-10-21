@@ -9,34 +9,70 @@ trait Core
     function getSpecies(){
         return ['Sheep' ,'Poultry', 'Cattle', 'Pig', 'Goat', 'Dog'];
     }
-    function getBreeds(){
-        return [
-            "Merino",
-            "Indigenous",
-            "Angus",
-            "Local",
-            "Hereford",
-            "Dorper",
-            "Friesian",
-            "Broilers",
-            "Katahdin",
-            "Boer",
-            "Sanga",
-            "Bonsmara",
-            "Layers",
-            "Boer cross",
-            "Bali",
-            "Kalahari",
-            "Local scavenging",
-            "Brahman",
-            "Berkshire",
-            "Large White",
-            "Landrace",
-            "Crossbreed",
-            "Purebred",
-            "Commercial layers",
-            "Domestic"
-        ];
+    function getBreeds()
+    {
+        $filePath = public_path('breeds.json');
+        if (!file_exists($filePath)) {
+            return [];
+        }
+
+        $jsonData = file_get_contents($filePath);
+        $data = json_decode($jsonData, true);
+        if ($data === null) {
+            return [];
+        }
+
+        $result = [];
+
+        foreach ($data as $item) {
+            if (empty($item['species']) || !isset($item['breed'])) {
+                continue;
+            }
+
+            $species = trim($item['species']);
+            if ($species === '') {
+                continue;
+            }
+
+            if (!isset($result[$species])) {
+                $result[$species] = [];
+            }
+
+            $keySigns = $item['breed'];
+            $rawSigns = [];
+
+            if (is_array($keySigns)) {
+                $rawSigns = $keySigns;
+            } elseif (is_string($keySigns)) {
+                $rawSigns = preg_split('/[;,|]+/', $keySigns);
+            }
+
+            foreach ($rawSigns as $sign) {
+                if (!is_string($sign)) {
+                    continue;
+                }
+                // normalize whitespace and trim
+                $s = trim($sign);
+                $s = preg_replace('/\s+/', ' ', $s);
+                if ($s === '') {
+                    continue;
+                }
+
+                // use lowercase key for deduplication but preserve first occurrence casing
+                $lower = mb_strtolower($s);
+                if (!isset($result[$species][$lower])) {
+                    $result[$species][$lower] = str_replace(' ', '_', $s);
+                }
+            }
+        }
+
+        // convert per-species maps to indexed arrays preserving first-occurrence casing
+        foreach ($result as $sp => $map) {
+            $result[$sp] = array_values($map);
+        }
+
+
+        return $result;
     }
 
     function getAges()
@@ -50,35 +86,78 @@ trait Core
         ];
     }
 
-   function getSigns() {
-       $filePath = public_path('signs.json');
-       if (!file_exists($filePath)) {
-           return [];
-       }
 
-       $jsonData = file_get_contents($filePath);
-       $data = json_decode($jsonData, true);
+function getSigns()
+{
+    $filePath = public_path('signs.json');
+    if (!file_exists($filePath)) {
+        return [];
+    }
 
-       if ($data === null) {
-           return [];
-       }
+    $jsonData = file_get_contents($filePath);
+    $data = json_decode($jsonData, true);
+    if ($data === null) {
+        return [];
+    }
 
-       $signs = [];
-       foreach ($data as $item) {
-           if (isset($item['key_signs'])) {
-               $parts = explode(';', $item['key_signs']);
-               foreach ($parts as $sign) {
-                   $signs[] = trim($sign);
-               }
-           }
-       }
+    $result = [];
 
-       return array_values(array_unique($signs));
-   }
+    foreach ($data as $item) {
+        if (empty($item['species']) || !isset($item['key_signs'])) {
+            continue;
+        }
+
+        $species = trim($item['species']);
+        if ($species === '') {
+            continue;
+        }
+
+        if (!isset($result[$species])) {
+            $result[$species] = [];
+        }
+
+        $keySigns = $item['key_signs'];
+        $rawSigns = [];
+
+        if (is_array($keySigns)) {
+            $rawSigns = $keySigns;
+        } elseif (is_string($keySigns)) {
+            $rawSigns = preg_split('/[;,|]+/', $keySigns);
+        }
+
+        foreach ($rawSigns as $sign) {
+            if (!is_string($sign)) {
+                continue;
+            }
+            // normalize whitespace and trim
+            $s = trim($sign);
+            $s = preg_replace('/\s+/', ' ', $s);
+            if ($s === '') {
+                continue;
+            }
+
+            // use lowercase key for deduplication but preserve first occurrence casing
+            $lower = mb_strtolower($s);
+            if (!isset($result[$species][$lower])) {
+                $result[$species][$lower] = str_replace(' ', '_', $s);
+            }
+        }
+    }
+
+    // convert per-species maps to indexed arrays preserving first-occurrence casing
+    foreach ($result as $sp => $map) {
+        $result[$sp] = array_values($map);
+    }
+
+
+    return $result;
+}
+
 
 
 
     function getSymptoms()
+
     {
         $filePath = public_path('symptoms.json');
         if (!file_exists($filePath)) {
@@ -87,22 +166,61 @@ trait Core
 
         $jsonData = file_get_contents($filePath);
         $data = json_decode($jsonData, true);
-
         if ($data === null) {
             return [];
         }
 
-        $symptoms = [];
+        $result = [];
+
         foreach ($data as $item) {
-            if (isset($item['symptoms_list'])) {
-                $parts = explode('|', $item['symptoms_list']);
-                foreach ($parts as $symptom) {
-                    $symptoms[] = trim($symptom);
+            if (empty($item['species']) || !isset($item['symptoms_list'])) {
+                continue;
+            }
+
+            $species = trim($item['species']);
+            if ($species === '') {
+                continue;
+            }
+
+            if (!isset($result[$species])) {
+                $result[$species] = [];
+            }
+
+            $keySigns = $item['symptoms_list'];
+            $rawSigns = [];
+
+            if (is_array($keySigns)) {
+                $rawSigns = $keySigns;
+            } elseif (is_string($keySigns)) {
+                $rawSigns = preg_split('/[;,|]+/', $keySigns);
+            }
+
+            foreach ($rawSigns as $sign) {
+                if (!is_string($sign)) {
+                    continue;
+                }
+                // normalize whitespace and trim
+                $s = trim($sign);
+                $s = preg_replace('/\s+/', ' ', $s);
+                if ($s === '') {
+                    continue;
+                }
+
+                // use lowercase key for deduplication but preserve first occurrence casing
+                $lower = mb_strtolower($s);
+                if (!isset($result[$species][$lower])) {
+                    $result[$species][$lower] = str_replace(' ', '_', $s);
                 }
             }
         }
 
-        return array_values(array_unique($symptoms));
+        // convert per-species maps to indexed arrays preserving first-occurrence casing
+        foreach ($result as $sp => $map) {
+            $result[$sp] = array_values($map);
+        }
+
+
+        return $result;
     }
 
 }

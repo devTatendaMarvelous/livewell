@@ -1,0 +1,61 @@
+[
+  {
+    "species": "Cattle",
+    "breed": [
+      "Angus",
+      "Hereford",
+      "Friesian",
+      "Sanga",
+      "Bonsmara",
+      "Bali",
+      "Brahman",
+      "Local"
+    ]
+  },
+  {
+    "species": "Dog",
+    "breed": [
+      "Crossbreed",
+      "Purebred",
+      "Local"
+    ]
+  },
+  {
+    "species": "Goat",
+    "breed": [
+      "Local",
+      "Boer",
+      "Boer cross",
+      "Kalahari"
+    ]
+  },
+  {
+    "species": "Pig",
+    "breed": [
+      "Local",
+      "Berkshire",
+      "Large White",
+      "Landrace",
+      "Domestic"
+    ]
+  },
+  {
+    "species": "Poultry",
+    "breed": [
+      "Indigenous",
+      "Broilers",
+      "Layers",
+      "Local scavenging",
+      "Commercial layers"
+    ]
+  },
+  {
+    "species": "Sheep",
+    "breed": [
+      "Merino",
+      "Local",
+      "Dorper",
+      "Katahdin"
+    ]
+  }
+]

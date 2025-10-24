@@ -127,6 +127,18 @@
                         </ul>
                     </li>
                 @endif
+
+                @if(isVet())
+                    <!-- Reports -->
+                    <li class="pc-item">
+                        <a href="{{ route('reports.health-summary') }}" class="pc-link">
+                        <span class="pc-micon">
+                            <svg class="pc-icon"><use xlink:href="#custom-status-up"></use></svg>
+                        </span>
+                            <span class="pc-mtext" data-i18n="Reports">Health Summary Report</span>
+                        </a>
+                    </li>
+                @endif
                 <!-- Chat -->
                 <li class="pc-item">
                     <a href="{{ route('chat') }}" class="pc-link">

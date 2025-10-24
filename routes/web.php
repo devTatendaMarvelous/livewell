@@ -43,6 +43,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('/health-records/{id}/diagnose', [HealthRecordController::class, 'diagonise'])->name('health-records.diagnose');
     Route::get('quick-chat', [\App\Http\Controllers\HomeController::class, 'chat'])->name('chat');
+    // Reports
+    Route::get('/reports/health-summary', [\App\Http\Controllers\ReportsController::class, 'healthSummary'])->name('reports.health-summary');
 });
 
 

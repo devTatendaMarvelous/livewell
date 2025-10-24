@@ -117,7 +117,8 @@ class HomeController extends Controller
 
     public function dashboard()
     {
-        $userId = auth()->id();
+        $userId = auth()->user()->id;
+
 
         // My livestock count (farmer's own animals)
         $totalLivestock = Livestock::where('user_id', $userId)->count();
@@ -126,7 +127,6 @@ class HomeController extends Controller
         $missedVaccinations = Vaccination::whereHas('livestock', function($query) use ($userId) {
             $query->where('user_id', $userId);
         })
-        ->orWhere('created_at', '<', now())
         ->count();
 
         // Active disease alerts for my livestock

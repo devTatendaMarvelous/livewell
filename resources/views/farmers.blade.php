@@ -274,7 +274,7 @@
                     <div class="col-md-4">
                         <div class="stat-card stat-card-success">
                             <span class="card-icon">💉</span>
-                            <h5 class="card-title">Pending Vaccinations</h5>
+                            <h5 class="card-title"> Vaccinations</h5>
                             <p class="card-value">{{ number_format($missedVaccinations) }}</p>
                         </div>
                     </div>

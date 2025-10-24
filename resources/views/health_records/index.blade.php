@@ -39,7 +39,7 @@
                                                 @endif
                                                 <a href="{{ route('health-records.show', $record->id) }}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-eye f-20"></i></a>
                                               @if($record->status === 'PENDING')
-                                                <a href="{{ route('health-records.edit', $record->id) }}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>
+{{--                                                <a href="{{ route('health-records.edit', $record->id) }}" class="avtar avtar-xs btn-link-secondary"><i class="ti ti-edit f-20"></i></a>--}}
                                                 <form action="{{ route('health-records.destroy', $record->id) }}" method="POST" class="d-inline">
                                                     @csrf @method('DELETE')
                                                     <button class="avtar avtar-xs btn-link-danger border-0 bg-transparent"><i class="ti ti-trash f-20"></i></button>

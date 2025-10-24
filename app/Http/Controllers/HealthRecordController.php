@@ -82,7 +82,8 @@ public function diagonise(Request $request, $id)
 
         return view('health_records.show', compact('healthRecord'));
     }
-
+toast('Unable to diagonise the livestock at this time.','error');
+    return redirect()->route('health-records.index');
     return response()->json($response);
 }
     public function edit(HealthRecord $healthRecord)

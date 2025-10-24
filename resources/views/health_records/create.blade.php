@@ -14,32 +14,24 @@
 
                                     <div class="col-md-6">
                                         <label class="form-label">Livestock</label>
-                                        <select name="livestock_id" class="form-select" required>
+                                        <select name="livestock_id" class="form-select" required id="livestock-select">
                                             <option value="">Select Livestock</option>
                                             @foreach($livestock as $animal)
-                                                <option value="{{ $animal->id }}">{{ $animal->tag_number }}</option>
+                                                <option value="{{ $animal->id }}" data-species="{{ $animal->species }}">{{ $animal->tag_number }} — {{ $animal->species }}</option>
                                             @endforeach
                                         </select>
                                         @error('livestock_id')<p class="text-danger">{{ $message }}</p>@enderror
                                     </div>
 
-                              <div class="col-md-6">
-                                  <label class="form-label">Symptoms</label>
-                                      <select name="symptoms[]" class="form-select" multiple required id="symptoms">
-                                      <option value="">Select Symptom</option>
-                                      @foreach($symptoms as $symptom)
-                                          <option value="{{ $symptom }}">{{str_replace('_', ' ', $symptom)  }}</option>
-                                      @endforeach
-                                  </select>
-                                  @error('symptoms')<p class="text-danger">{{ $message }}</p>@enderror
-                              </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Symptoms</label>
+                                        <select name="symptoms[]" class="form-select" multiple required id="symptoms"></select>
+                                        @error('symptoms')<p class="text-danger">{{ $message }}</p>@enderror
+                                    </div>
 
                                     <div class="col-md-6">
                                         <label class="form-label">Signs</label>
                                         <select name="signs[]" class="form-select" multiple required id="signs">
-                                            @foreach($signs as $sign)
-                                                <option value="{{ $sign }}">{{ str_replace('_', ' ', $sign)   }}</option>
-                                            @endforeach
                                         </select>
                                         @error('signs')<p class="text-danger">{{ $message }}</p>@enderror
                                     </div>
@@ -71,5 +63,62 @@
             </div>
         </div>
     </section>
+
+<script>
+    (function() {
+        const speciesSymptoms = @json($symptoms);
+        const speciesSigns = @json($signs);
+        const livestockSelect = document.getElementById('livestock-select');
+        const symptomsSelect = document.getElementById('symptoms');
+        const signsSelect = document.getElementById('signs');
+
+        function setOptions(selectEl, items, placeholder) {
+            // preserve previously selected values if they still exist
+            const prev = Array.from(selectEl.selectedOptions).map(o => o.value);
+            selectEl.innerHTML = '';
+            // Add placeholder for usability when empty
+            const ph = document.createElement('option');
+            ph.value = '';
+            ph.textContent = items && items.length ? (placeholder || 'Select options') : 'No options for this species';
+            ph.disabled = true;
+            ph.selected = true;
+            selectEl.appendChild(ph);
+
+            if (!Array.isArray(items)) return;
+            items.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val.replaceAll('_',' ');
+                if (prev.includes(val)) opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        function updateBySpecies(sp) {
+            const sympt = speciesSymptoms && speciesSymptoms[sp] ? speciesSymptoms[sp] : [];
+            const sgns = speciesSigns && speciesSigns[sp] ? speciesSigns[sp] : [];
+            setOptions(symptomsSelect, sympt, 'Select symptoms');
+            setOptions(signsSelect, sgns, 'Select signs');
+        }
+
+        livestockSelect?.addEventListener('change', function() {
+            const sp = this.options[this.selectedIndex]?.dataset?.species;
+            updateBySpecies(sp);
+        });
+
+        // Initialize on load if an option is pre-selected
+        window.addEventListener('DOMContentLoaded', function() {
+            const selected = livestockSelect?.options[livestockSelect.selectedIndex];
+            const sp = selected ? selected.dataset.species : null;
+            if (sp) {
+                updateBySpecies(sp);
+            } else {
+                // default to empty lists
+                setOptions(symptomsSelect, []);
+                setOptions(signsSelect, []);
+            }
+        });
+    })();
+</script>
 
 </x-master>

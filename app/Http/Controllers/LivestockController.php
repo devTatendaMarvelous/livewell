@@ -12,7 +12,9 @@ class LivestockController extends Controller
     use Core;
     public function index()
     {
-        $livestock = Livestock::with('user')->latest()->paginate(10);
+        $livestock = Livestock::with('user')->when(!isVet(),function ($query){
+            return $query->where('user_id', auth()->user()->id);
+        })->latest()->paginate(10);
         return view('livestock.index', compact('livestock'));
     }
 

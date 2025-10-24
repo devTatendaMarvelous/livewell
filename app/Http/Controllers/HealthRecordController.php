@@ -14,7 +14,11 @@ class HealthRecordController extends Controller
     use LivestockModel,Core;
     public function index()
     {
-        $records = HealthRecord::with(['livestock', 'vet'])->latest()->paginate(10);
+        $records = HealthRecord::with(['livestock', 'vet']) -> when(!isVet(), function ($query) {
+            return $query->whereHas('livestock', function ($query) {
+                return $query->where('user_id', auth()->user()->id);
+            });
+        })->latest()->paginate(10);
         return view('health_records.index', compact('records'));
     }
 

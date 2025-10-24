@@ -12,7 +12,11 @@ class VaccinationController extends Controller
 {
     public function index()
     {
-        $vaccinations = Vaccination::with('livestock')->paginate(10);
+        $vaccinations = Vaccination::with('livestock') -> when(!isVet(), function ($query) {
+                return $query->whereHas('livestock', function ($query) {
+                    return $query->where('user_id', auth()->user()->id);
+                });
+        })->paginate(10);
         return view('vaccinations.index', compact('vaccinations'));
     }
 
@@ -35,7 +39,7 @@ class VaccinationController extends Controller
         ]);
 
         Vaccination::create($validated);
-        toast('Vaccination created successfully.','success');
+        toast('Vaccination created successfully.', 'success');
         return redirect()->route('vaccinations.index')->with('success', 'Vaccination added successfully.');
     }
 
@@ -61,14 +65,14 @@ class VaccinationController extends Controller
         ]);
 
         $vaccination->update($validated);
-        toast('Vaccination updated successfully.','success');
+        toast('Vaccination updated successfully.', 'success');
         return redirect()->route('vaccinations.index')->with('success', 'Vaccination updated.');
     }
 
     public function destroy(Vaccination $vaccination)
     {
         $vaccination->delete();
-        toast('Vaccination deleted successfully.','success');
+        toast('Vaccination deleted successfully.', 'success');
         return redirect()->route('vaccinations.index')->with('success', 'Vaccination deleted.');
     }
 }
